@@ -1,6 +1,7 @@
 const criptomonedasSelect = document.querySelector('#criptomonedas');
 const monedaSelect = document.querySelector('#moneda');
 const formulario = document.querySelector('#formulario');
+const resultado = document.querySelector('#resultado');
 
 
 const objBusqueda = {
@@ -59,10 +60,11 @@ function submitFormulario(e) {
 
     if( moneda === '' || criptomoneda === '' ){
         mostrarAlerta('Ambos campos son obligatorios');
-
         return;
     }
 
+    // Consultar la API con los resultados
+    consultarAPI();
 }
 
 function mostrarAlerta(msg){
@@ -82,5 +84,69 @@ function mostrarAlerta(msg){
         }, 3000);
     }
 
+    
+}
+
+function consultarAPI(){
+    const { moneda, criptomoneda } = objBusqueda;
+
+    const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`;
+
+    mostrarSpinner();
+    fetch(url)
+        .then(respuesta => respuesta.json())
+        .then(cotizacion => mostrarCotizacion(cotizacion.DISPLAY[criptomoneda][moneda]))
+}
+
+function mostrarCotizacion(cotizacion) {
+
+    limpiarHTML();
+
+    const { PRICE, HIGHDAY, LOWDAY, CHANGEPCT24HOUR, LASTUPDATE } = cotizacion;
+
+    const precio = document.createElement('p');
+    precio.classList.add('precio');
+    precio.innerHTML = `El precio es: <span>${PRICE}</span>`;
+
+    const precioAlto = document.createElement('p');
+    precioAlto.innerHTML = `El precio mas alto del dia es de: ${HIGHDAY}`;
+    
+    const precioBajo = document.createElement('p');
+    precioBajo.innerHTML = `El precio mas bajo del dia es de: ${LOWDAY}`;
+
+    const cambioDia = document.createElement('p');
+    cambioDia.innerHTML = `El cambio porcentual del dia es de: ${CHANGEPCT24HOUR} %`;
+
+    const ultimaActualizacion = document.createElement('p');
+    ultimaActualizacion.innerHTML = `La ultima actualizacion es: ${LASTUPDATE}`;
+
+    resultado.appendChild(precio);
+    resultado.appendChild(precioAlto);
+    resultado.appendChild(precioBajo);
+    resultado.appendChild(cambioDia);
+    resultado.appendChild(ultimaActualizacion);
+}
+
+function limpiarHTML(){
+    while (resultado.firstChild){
+        resultado.removeChild(resultado.firstChild)
+    }
+}
+
+function mostrarSpinner(){
+    limpiarHTML();
+
+    const spinner = document.createElement('div');
+    spinner.classList.add('spinner');
+
+    spinner.innerHTML = `
+
+    <div class="bounce1"></div>
+    <div class="bounce2"></div>
+    <div class="bounce3"></div>
+
+    `
+
+    resultado.appendChild(spinner);
     
 }
