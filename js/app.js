@@ -25,14 +25,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
     monedaSelect.addEventListener('change', leerValor);
 })
 
-function consultarCriptomonedas(){
+async function consultarCriptomonedas(){
     const url = 'https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD';
 
-    fetch(url)
-        .then( respuesta => respuesta.json())
-        .then( resultado => obtenerCriptomonedas(resultado.Data)) // En vez de crear un callback, se crea un promise para seguir trabajando y extender la funcionalidad
-        .then( criptomonedas => selectCriptomonedas(criptomonedas))
-        // .then( criptomonedas => console.log(criptomonedas))
+    // fetch(url)
+    //     .then( respuesta => respuesta.json())
+    //     .then( resultado => obtenerCriptomonedas(resultado.Data)) // En vez de crear un callback, se crea un promise para seguir trabajando y extender la funcionalidad
+    //     .then( criptomonedas => selectCriptomonedas(criptomonedas))
+    //     // .then( criptomonedas => console.log(criptomonedas))
+        try {
+            const respuesta = await fetch(url);
+            const resultado = await respuesta.json();
+            const criptomonedas = await obtenerCriptomonedas(resultado.Data);
+            selectCriptomonedas(criptomonedas);
+        } catch (error) {
+            console.log(error);
+        }
 }
 
 function selectCriptomonedas(criptomonedas) {
@@ -87,15 +95,23 @@ function mostrarAlerta(msg){
     
 }
 
-function consultarAPI(){
+async function consultarAPI(){
     const { moneda, criptomoneda } = objBusqueda;
 
     const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`;
 
     mostrarSpinner();
-    fetch(url)
-        .then(respuesta => respuesta.json())
-        .then(cotizacion => mostrarCotizacion(cotizacion.DISPLAY[criptomoneda][moneda]))
+    // fetch(url)
+    //     .then(respuesta => respuesta.json())
+    //     .then(cotizacion => mostrarCotizacion(cotizacion.DISPLAY[criptomoneda][moneda]));
+
+    try {
+        const respuesta = await fetch(url);
+        const cotizacion = await respuesta.json();
+        mostrarCotizacion(cotizacion.DISPLAY[criptomoneda][moneda]);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 function mostrarCotizacion(cotizacion) {
